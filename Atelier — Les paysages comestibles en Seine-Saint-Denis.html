@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Les paysages comestibles en Seine-Saint-Denis</title>
+<link href="Atelier%20%E2%80%94%20Les%20paysages%20comestibles%20en%20Seine-Saint-Denis_files/css2.css" rel="stylesheet">
+<style>
+  :root {
+    --vert: #2d6a4f;
+    --vert-clair: #52b788;
+    --vert-pale: #d8f3dc;
+    --terre: #b7752c;
+    --creme: #faf7f2;
+    --sombre: #1a2e1f;
+    --gris: #6b7a6e;
+    --blanc: #ffffff;
+    --border: #c8dfc8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--creme);
+    color: var(--sombre);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--vert);
+    padding: 32px 40px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: rgba(82,183,136,0.15);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 10px; left: 20%;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .header-badge {
+    display: inline-block;
+    background: var(--vert-clair);
+    color: var(--blanc);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    color: var(--blanc);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  header p {
+    color: rgba(255,255,255,0.65);
+    font-size: 13px;
+  }
+
+  /* CONTENU */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 40px 60px;
+  }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px);} to {opacity:1; transform:none;} }
+
+  /* CARTE FICHE */
+  .fiche {
+    background: var(--blanc);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(45,106,79,0.08);
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* SECTION FICHE */
+  .fiche-section {
+    border-bottom: 1px solid var(--border);
+  }
+  .fiche-section:last-child { border-bottom: none; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    background: var(--vert-pale);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .section-header:hover { background: #cceedd; }
+
+  .section-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--vert);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--vert);
+    flex: 1;
+  }
+  .section-chevron {
+    color: var(--vert);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+  .section-header.open .section-chevron { transform: rotate(180deg); }
+
+  .section-body {
+    padding: 0 24px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.2s;
+  }
+  .section-body.open {
+    max-height: 3000px;
+    padding: 20px 24px 24px;
+  }
+
+  /* CHAMPS */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .field-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid.full { grid-template-columns: 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .field.span2 { grid-column: span 2; }
+  .field.span3 { grid-column: span 3; }
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--sombre);
+    background: var(--creme);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    resize: vertical;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--vert-clair);
+    box-shadow: 0 0 0 3px rgba(82,183,136,0.12);
+    background: var(--blanc);
+  }
+  textarea { min-height: 80px; }
+
+  /* STATUT */
+  .statut-wrap { display: flex; gap: 8px; flex-wrap: wrap; }
+  .statut-opt {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 500;
+    transition: all 0.15s;
+    background: var(--creme);
+    color: var(--gris);
+  }
+  .statut-opt:hover { border-color: var(--vert-clair); color: var(--vert); }
+  .statut-opt.selected { background: var(--vert); border-color: var(--vert); color: var(--blanc); }
+
+  /* FONCTIONS TAGS (section 1) */
+  .fct-tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--creme);
+    color: var(--gris);
+    user-select: none;
+  }
+  .fct-tag:hover { border-color: var(--vert-clair); color: var(--vert); }
+  .fct-tag.active { background: var(--vert); border-color: var(--vert); color: var(--blanc); }
+
+  /* FONCTIONS PAYSAGES COMESTIBLES */
+  .fonctions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .fonction-card {
+    border-radius: 10px;
+    padding: 14px;
+    border: 1.5px solid var(--border);
+    background: var(--creme);
+    transition: border-color 0.15s;
+  }
+  .fonction-card:hover { border-color: var(--vert-clair); }
+  .fonction-card .fonction-icon { font-size: 22px; margin-bottom: 6px; }
+  .fonction-card .fonction-label {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--vert);
+    margin-bottom: 8px;
+  }
+  .fonction-card textarea { min-height: 70px; font-size: 13px; }
+
+  /* TIMELINE */
+  .timeline {
+    display: flex;
+    gap: 0;
+    position: relative;
+    margin-top: 8px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 16px; left: 16px; right: 16px;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .timeline-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  .timeline-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--blanc);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .timeline-dot:hover, .timeline-dot.active {
+    background: var(--vert);
+    border-color: var(--vert);
+    color: var(--blanc);
+  }
+  .timeline-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gris);
+    text-align: center;
+    max-width: 80px;
+  }
+
+  /* INDICATEURS */
+  .indicateurs-list { display: flex; flex-direction: column; gap: 10px; }
+  .indicateur-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--creme);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .indicateur-header {
+    background: var(--vert-pale) !important;
+    border-color: var(--vert-clair) !important;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .add-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 16px;
+    border: 1.5px dashed var(--vert-clair);
+    border-radius: 8px;
+    background: none;
+    color: var(--vert);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s;
+  }
+  .add-btn:hover { background: var(--vert-pale); }
+
+  /* BENCHMARK */
+  .benchmark-list { display: flex; flex-direction: column; gap: 14px; }
+  .benchmark-item {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    background: var(--creme);
+    transition: border-color 0.15s;
+  }
+  .benchmark-item:hover { border-color: var(--vert-clair); }
+  .benchmark-item-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .benchmark-item-desc { margin-top: 4px; }
+  .benchmark-remove {
+    display: inline-flex; align-items: center;
+    padding: 4px 10px;
+    border: 1px solid #e0a0a0;
+    border-radius: 6px;
+    background: none;
+    color: #c0504d;
+    font-size: 11px;
+    cursor: pointer;
+    margin-top: 8px;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .benchmark-remove:hover { background: #fdf0f0; }
+
+  /* BOUTONS BAS */
+  .actions-bar {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .btn {
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+  }
+  .btn-outline {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--gris);
+  }
+  .btn-outline:hover { border-color: var(--vert-clair); color: var(--vert); }
+  .btn-primary {
+    background: var(--vert);
+    color: var(--blanc);
+  }
+  .btn-primary:hover { background: #235a40; }
+
+  .print-hint {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--gris);
+    margin-top: 10px;
+  }
+  .print-hint span { color: var(--vert); font-weight: 500; cursor: pointer; text-decoration: underline; }
+
+  @media print {
+    header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .actions-bar, .print-hint, .add-btn, .benchmark-remove { display: none !important; }
+    .section-body { max-height: none !important; padding: 20px 24px 24px !important; }
+    body { background: white; }
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 20px 16px 40px; }
+    header { padding: 24px 16px 16px; }
+    .field-grid, .field-grid.cols-3 { grid-template-columns: 1fr; }
+    .field.span2, .field.span3 { grid-column: span 1; }
+    .fonctions-grid { grid-template-columns: 1fr 1fr; }
+    .indicateur-row { grid-template-columns: 1fr; }
+    .benchmark-item-header { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-badge">🌿 Fiche Action</div>
+    <h1>Atelier — Les paysages comestibles<br>en Seine-Saint-Denis</h1>
+    <p>Outil de planification et de suivi des actions</p>
+  </div>
+</header>
+
+<div class="container">
+  <div class="fiche">
+
+    <!-- 1. IDENTIFICATION -->
+    <div class="fiche-section">
+      <div class="section-header open" onclick="toggle(this)">
+        <div class="section-icon">🏷️</div>
+        <span class="section-title">1 — Identification de l'action</span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-body open">
+        <div class="field-grid cols-3">
+          <div class="field">
+            <label>N° de l'action</label>
+            <input type="text" value="PC-02">
+          </div>
+          <div class="field span2">
+            <label>Intitulé de l'action</label>
+            <input type="text" value="La Caserne de la résilience alimentaire">
+          </div>
+          <div class="field span3">
+            <label>Concept en une phrase</label>
+            <input type="text" value="Tiers-lieu de formation, de prêt d'outils et de mise en lien pour outiller les habitants à produire leur propre alimentation en milieu urbain et à s'approprier les enjeux alimentaires">
+          </div>
+          <div class="field">
+            <label>Porteur</label>
+            <input type="text" value="Département de Seine-Saint-Denis (coordinateur·rice + bénévoles + intervenants dans les projets départementaux + staff technique)">
+          </div>
+          <div class="field span2">
+            <label>Bénéficiaires</label>
+            <input type="text" value="Habitants de Seine-Saint-Denis">
+          </div>
+          <div class="field span2">
+            <label>Parc pressenti</label>
+            <input type="text" value="Parc du Sausset - parc avec un certain nombre d'activités liés à l'alimentation et de paysages comestibles sur place">
+          </div>
+          <div class="field">
+            <label>Partenaires</label>
+            <input type="text" placeholder="Associations, intervenants formations, jardiniers bénévoles..." value="Clinamen, La ferme du Sausset">
+          </div>
+        </div>
+        <div class="field" style="margin-top:18px;">
+          <label>Fonctions paysage comestible activées</label>
+          <div class="fonctions-check" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+            <div class="fct-tag active" onclick="toggleFct(this)">📚 Pédagogique</div>
+            <div class="fct-tag active" onclick="toggleFct(this)">🍎 Nourricière</div>
+            <div class="fct-tag" onclick="toggleFct(this)">🏥 Sanitaire</div>
+            <div class="fct-tag" onclick="toggleFct(this)">🎨 Esthétique</div>
+            <div class="fct-tag active" onclick="toggleFct(this)">🤝 Sociale</div>
+            <div class="fct-tag active" onclick="toggleFct(this)">🌿 Écologique</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. DESCRIPTION -->
+    <div class="fiche-section">
+      <div class="section-header open" onclick="toggle(this)">
+        <div class="section-icon">📋</div>
+        <span class="section-title">2 — Description de l'action</span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-body open">
+        <div class="field-grid full">
+          <div class="field">
+            <label>Description du dispositif</label>
+            <textarea>Bâtiment de taille moyenne reprenant les codes 
+visuels d'une caserne de pompier, réinterprétés dans un style punk à 
+base de matériaux de récupération. Il comprend :
+— Un espace de formation en lien avec le jardin pédagogique : culture 
+urbaine, cueillette dans les parcs, production sur balcon/toit, plantes 
+résistantes à la pollution
+— Un stock diversifié d'outils en prêt libre aux usagers
+— Un service de mise en lien entre jardiniers motivés et espaces 
+disponibles à cultiver
+— Un guichet unique départemental sur les questions d'alimentation 
+locale et durable</textarea>
+          </div>
+          <div class="field">
+            <label>Pourquoi ? — Contribution à la résilience alimentaire</label>
+            <textarea>→ Former un vivier d'habitants capables de 
+participer à la production d'une partie de leur propre nourriture en 
+milieu urbain
+→ Constituer un lieu de ralliement favorisant l'émergence d'autres 
+projets alimentaires sur le territoire
+→ Valoriser le parc comme "objet frontière" entre ville et nature : 
+espace de passage, de formation et d'expérimentation
+→ Faire du Parc du Sausset une vitrine départementale sur l'alimentation
+ durable, susceptible d'attirer des financements (innovation relative)</textarea>
+          </div>
+          <div class="field">
+            <label>Public cible / Bénéficiaires</label>
+            <input type="text" value="Habitants de Seine-Saint-Denis — jardiniers débutants, porteurs de projets alimentaires, associations de quartier">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. INDICATEURS -->
+    <div class="fiche-section">
+      <div class="section-header open" onclick="toggle(this)">
+        <div class="section-icon">📊</div>
+        <span class="section-title">3 — Indicateurs de suivi</span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-body open">
+        <div class="indicateurs-list" id="indicateurs-main">
+          <div class="indicateur-row indicateur-header">
+            <span>Indicateur</span><span>Valeur cible</span><span>Échéance</span>
+          </div>
+          <div class="indicateur-row">
+            <input type="text" placeholder="ex. Surface de paysage comestible créée (m²)">
+            <input type="text" placeholder="ex. 500 m²">
+            <input type="text" placeholder="ex. 2026">
+          </div>
+          <div class="indicateur-row">
+            <input type="text" placeholder="Indicateur 2">
+            <input type="text" placeholder="Cible">
+            <input type="text" placeholder="Échéance">
+          </div>
+        </div>
+        <button class="add-btn" onclick="addIndicateur('indicateurs-main')">+ Ajouter un indicateur</button>
+      </div>
+    </div>
+
+    <!-- 4. IMPACTS & FONCTIONS -->
+    <div class="fiche-section">
+      <div class="section-header open" onclick="toggle(this)">
+        <div class="section-icon">🌍</div>
+        <span class="section-title">4 — Impacts &amp; Co-bénéfices</span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-body open">
+        <div class="fonctions-grid">
+          <div class="fonction-card">
+            <div class="fonction-icon">📚</div>
+            <div class="fonction-label">Pédagogique</div>
+            <textarea placeholder="Apports éducatifs, sensibilisation, ateliers, lien avec les établissements scolaires..."></textarea>
+          </div>
+          <div class="fonction-card">
+            <div class="fonction-icon">🍎</div>
+            <div class="fonction-label">Nourricière</div>
+            <textarea placeholder="Production alimentaire, espèces cultivées, quantités estimées, circuits courts..."></textarea>
+          </div>
+          <div class="fonction-card">
+            <div class="fonction-icon">🏥</div>
+            <div class="fonction-label">Sanitaire</div>
+            <textarea placeholder="Bienfaits sur la santé, accès à des aliments frais, qualité de l'air, gestion des ilots de chaleur..."></textarea>
+          </div>
+          <div class="fonction-card">
+            <div class="fonction-icon">🎨</div>
+            <div class="fonction-label">Esthétique</div>
+            <textarea placeholder="Embellissement du cadre de vie, valorisation du paysage urbain, design végétal..."></textarea>
+          </div>
+          <div class="fonction-card">
+            <div class="fonction-icon">🤝</div>
+            <div class="fonction-label">Sociale</div>
+            <textarea placeholder="Lien social, participation habitante, inclusion, jardinage collectif, appropriation des espaces..."></textarea>
+          </div>
+          <div class="fonction-card">
+            <div class="fonction-icon">🌿</div>
+            <div class="fonction-label">Écologique</div>
+            <textarea placeholder="Biodiversité, pollinisateurs, sols vivants, gestion de l'eau, corridors verts..."></textarea>
+          </div>
+        </div>
+        <div class="field-grid" style="margin-top:16px;">
+          <div class="field">
+            <label>Liens avec d'autres actions</label>
+            <input type="text" placeholder="ex. PC-03, PC-07">
+          </div>
+          <div class="field">
+            <label>Risques &amp; Points de vigilance</label>
+            <input type="text" placeholder="ex. Entretien, vandalisme, saisonnalité...">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. MISE EN OEUVRE -->
+    <div class="fiche-section">
+      <div class="section-header open" onclick="toggle(this)">
+        <div class="section-icon">🗓️</div>
+        <span class="section-title">5 — Mise en œuvre &amp; Calendrier</span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-body open">
+        <div class="field-grid">
+          <div class="field">
+            <label>Date de début</label>
+            <input type="text" placeholder="ex. Septembre 2025">
+          </div>
+          <div class="field">
+            <label>Date de fin</label>
+            <input type="text" placeholder="ex. Juin 2026">
+          </div>
+        </div>
+        <div class="field" style="margin-top:16px;">
+          <label>Phases de réalisation</label>
+        </div>
+        <div class="timeline" style="margin-top:12px; margin-bottom:16px;">
+          <div class="timeline-step">
+            <div class="timeline-dot active">1</div>
+            <div class="timeline-label">Phase 1<br><input type="text" placeholder="Nom" style="width:80px;font-size:11px;padding:4px 6px;text-align:center;margin-top:4px;"></div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot">2</div>
+            <div class="timeline-label">Phase 2<br><input type="text" placeholder="Nom" style="width:80px;font-size:11px;padding:4px 6px;text-align:center;margin-top:4px;"></div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot">3</div>
+            <div class="timeline-label">Phase 3<br><input type="text" placeholder="Nom" style="width:80px;font-size:11px;padding:4px 6px;text-align:center;margin-top:4px;"></div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot">4</div>
+            <div class="timeline-label">Phase 4<br><input type="text" placeholder="Nom" style="width:80px;font-size:11px;padding:4px 6px;text-align:center;margin-top:4px;"></div>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>Budget estimé (€)</label>
+            <input type="number" placeholder="0">
+          </div>
+          <div class="field">
+            <label>Sources de financement</label>
+            <input type="text" placeholder="ex. Fonds propres, subvention ADEME, Région IDF...">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. BENCHMARK -->
+    <div class="fiche-section">
+      <div class="section-header open" onclick="toggle(this)">
+        <div class="section-icon">🔍</div>
+        <span class="section-title">6 — Benchmark</span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-body open">
+        <p style="font-size:13px;color:var(--gris);margin-bottom:16px;">Exemples
+ de projets de référence (autres parcs, villes, initiatives) dont cette 
+action s'inspire ou avec lesquels elle peut être comparée.</p>
+        <div class="benchmark-list" id="benchmark-list">
+          <div class="benchmark-item">
+            <div class="benchmark-item-header">
+              <div class="field">
+                <label>Nom du projet / initiative</label>
+                <input type="text" value="Clinamen">
+              </div>
+              <div class="field">
+                <label>Lieu / Territoire</label>
+                <input type="text" value="Idée originale — Seine-Saint-Denis">
+              </div>
+              <div class="field">
+                <label>Source / Lien</label>
+                <input type="text" placeholder="URL ou référence">
+              </div>
+            </div>
+            <div class="benchmark-item-desc field">
+              <label>Points d'inspiration / Enseignements</label>
+              <textarea>Concept source de la Caserne. Tiers-lieu pensé 
+comme espace de ralliement et d'émergence de projets. Littérature sur 
+les tiers-lieux : lieux intermédiaires favorisant l'innovation sociale 
+et la création de collectifs autonomes.</textarea>
+            </div>
+            <button class="benchmark-remove" onclick="removeParent(this, '.benchmark-item')">✕ Supprimer</button>
+          </div>
+          <div class="benchmark-item">
+            <div class="benchmark-item-header">
+              <div class="field">
+                <label>Nom du projet / initiative</label>
+                <input type="text" value="Parc du Sausset — jardin pédagogique">
+              </div>
+              <div class="field">
+                <label>Lieu / Territoire</label>
+                <input type="text" value="Aulnay-sous-Bois / Villepinte (93)">
+              </div>
+              <div class="field">
+                <label>Source / Lien</label>
+                <input type="text" placeholder="URL ou référence">
+              </div>
+            </div>
+            <div class="benchmark-item-desc field">
+              <label>Points d'inspiration / Enseignements</label>
+              <textarea>Déjà exemplaire sur les espaces comestibles et 
+la pédagogie alimentaire. Parc départemental idéalement positionné comme
+ vitrine. Ancrage existant à valoriser : la Caserne pourrait s'y appuyer
+ pour renforcer la visibilité du département et attirer des subventions 
+liées à l'innovation.</textarea>
+            </div>
+            <button class="benchmark-remove" onclick="removeParent(this, '.benchmark-item')">✕ Supprimer</button>
+          </div>
+        </div>
+        <button class="add-btn" onclick="addBenchmark()">+ Ajouter un exemple</button>
+      </div>
+    </div>
+
+    <!-- 7. SUIVI -->
+    <div class="fiche-section">
+      <div class="section-header" onclick="toggle(this)">
+        <div class="section-icon">📍</div>
+        <span class="section-title">7 — État d'avancement &amp; Bilan</span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="field">
+          <label>Statut de l'action</label>
+          <div class="statut-wrap" style="margin-top:6px;">
+            <div class="statut-opt" onclick="selectStatut(this)">🟡 Non démarrée</div>
+            <div class="statut-opt" onclick="selectStatut(this)">🔵 En cours</div>
+            <div class="statut-opt" onclick="selectStatut(this)">🟢 Terminée</div>
+            <div class="statut-opt" onclick="selectStatut(this)">🔴 Abandonnée</div>
+            <div class="statut-opt" onclick="selectStatut(this)">⏸️ Suspendue</div>
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px;">
+          <label>Commentaires &amp; bilan intermédiaire</label>
+          <textarea placeholder="Points d'avancement, difficultés rencontrées, ajustements apportés..."></textarea>
+        </div>
+        <div class="field-grid" style="margin-top:12px;">
+          <div class="field">
+            <label>Dernière mise à jour</label>
+            <input type="text" placeholder="JJ/MM/AAAA">
+          </div>
+          <div class="field">
+            <label>Rédacteur·rice</label>
+            <input type="text" placeholder="Nom, prénom">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- fin fiche -->
+
+  <div class="actions-bar">
+    <button class="btn btn-outline" onclick="resetTemplate()">↺ Réinitialiser</button>
+    <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimer / Exporter PDF</button>
+  </div>
+  <p class="print-hint">Pour exporter en PDF : <span onclick="window.print()">Imprimer</span> → Enregistrer en PDF dans votre navigateur</p>
+
+</div><!-- fin container -->
+
+<script>
+  // Toggle fonction tag
+  function toggleFct(el) { el.classList.toggle('active'); }
+
+  // Accordion
+  function toggle(header) {
+    header.classList.toggle('open');
+    header.nextElementSibling.classList.toggle('open');
+  }
+
+  // Statut
+  function selectStatut(el) {
+    el.closest('.statut-wrap').querySelectorAll('.statut-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  // Ajouter indicateur
+  function addIndicateur(listId) {
+    const list = document.getElementById(listId);
+    const row = document.createElement('div');
+    row.className = 'indicateur-row';
+    row.innerHTML = `
+      <input type="text" placeholder="Indicateur">
+      <input type="text" placeholder="Cible">
+      <input type="text" placeholder="Échéance">
+    `;
+    list.appendChild(row);
+  }
+
+  // Ajouter benchmark
+  function addBenchmark() {
+    const list = document.getElementById('benchmark-list');
+    const item = document.createElement('div');
+    item.className = 'benchmark-item';
+    item.innerHTML = `
+      <div class="benchmark-item-header">
+        <div class="field">
+          <label>Nom du projet / initiative</label>
+          <input type="text" placeholder="ex. Jardin forêt de Versailles">
+        </div>
+        <div class="field">
+          <label>Lieu / Territoire</label>
+          <input type="text" placeholder="ex. Île-de-France">
+        </div>
+        <div class="field">
+          <label>Source / Lien</label>
+          <input type="text" placeholder="URL ou référence">
+        </div>
+      </div>
+      <div class="benchmark-item-desc field">
+        <label>Points d'inspiration / Enseignements</label>
+        <textarea placeholder="Qu'est-ce que ce projet apporte comme apprentissages pour votre action ?"></textarea>
+      </div>
+      <button class="benchmark-remove" onclick="removeParent(this, '.benchmark-item')">✕ Supprimer</button>
+    `;
+    list.appendChild(item);
+    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Supprimer un parent
+  function removeParent(el, selector) {
+    el.closest(selector).remove();
+  }
+
+  // Reset
+  function resetTemplate() {
+    if (!confirm('Réinitialiser tous les champs ?')) return;
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+      if (el.tagName === 'SELECT') el.selectedIndex = 0;
+      else el.value = '';
+    });
+    document.querySelectorAll('.statut-opt').forEach(o => o.classList.remove('selected'));
+    // Garder seulement le premier benchmark
+    const bl = document.getElementById('benchmark-list');
+    while (bl.children.length > 1) bl.removeChild(bl.lastChild);
+  }
+
+  // Init : ouvrir première section
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.section-header.open').forEach(h => {
+      h.nextElementSibling.classList.add('open');
+    });
+  });
+</script>
+
+
+
+</body></html>
