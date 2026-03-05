@@ -400,6 +400,17 @@ textarea { min-height: 75px; }
 }
 .prochaine-etape .field-grid { grid-template-columns: 2fr 1fr 1fr; }
 
+/* ── SYNC STATUS ── */
+.sync-status {
+  font-size: 11.5px; font-weight: 500; padding: 6px 10px;
+  border-radius: 8px; text-align: center; margin-top: 8px;
+  transition: all 0.3s;
+}
+.sync-saving { background: #fff8e1; color: #b7752c; }
+.sync-saved  { background: #d8f3dc; color: #2d6a4f; }
+.sync-error  { background: #fdecea; color: #c0504d; }
+.sync-loading{ background: #e8f4f8; color: #2c7a9e; }
+
 /* ── PRINT ── */
 @media print {
   .sidebar, .actions-bar, .add-btn, .benchmark-remove,
@@ -450,9 +461,9 @@ textarea { min-height: 75px; }
     <div class="sidebar-title">Fiches actions</div>
     <div class="fiche-list" id="fiche-list"></div>
     <button class="add-fiche-btn" onclick="addFiche()">＋ Nouvelle fiche</button>
+    <div id="sync-status" class="sync-status sync-loading">🔄 Chargement...</div>
     <div class="sidebar-actions">
       <button class="sidebar-btn sidebar-btn-primary" onclick="window.print()">🖨️ Imprimer tout</button>
-      <button class="sidebar-btn sidebar-btn-outline" onclick="exportJSON()">💾 Exporter (.json)</button>
     </div>
   </aside>
 
@@ -897,29 +908,257 @@ function removeImg(id) {
 }
 
 // ─────────────────────────────────────────
-// EXPORT JSON (sauvegarde basique)
+// SUPABASE CONFIG
 // ─────────────────────────────────────────
-function exportJSON() {
-  const data = fiches.map(f => {
-    const panel = document.getElementById(`panel_${f.id}`);
-    if (!panel) return f;
-    const inputs = {};
-    panel.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach((el, i) => {
-      inputs[i] = el.value;
-    });
-    return { ...f, inputs };
-  });
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'fiches-action-paysages-comestibles.json';
-  a.click();
+const SUPABASE_URL = 'https://bmozttflufocjgerikdi.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtb3p0dGZsdWZvY2pnZXJpa2RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3Mjk5MDcsImV4cCI6MjA4ODMwNTkwN30.yJPVN2T-1nXe9emcvA-CdrFvfS-hzWqzLrbU4yG6In0';
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`
+};
+
+// ─────────────────────────────────────────
+// SYNC STATUS UI
+// ─────────────────────────────────────────
+function setSyncStatus(status, msg) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const icons = { saving: '⏳', saved: '✅', error: '⚠️', loading: '🔄' };
+  el.textContent = `${icons[status] || ''} ${msg}`;
+  el.className = `sync-status sync-${status}`;
 }
 
 // ─────────────────────────────────────────
-// INIT — créer une première fiche par défaut
+// COLLECT FICHE DATA
 // ─────────────────────────────────────────
-addFiche();
+function collectFicheData(id) {
+  const panel = document.getElementById(`panel_${id}`);
+  if (!panel) return null;
+
+  // Inputs & textareas
+  const fields = {};
+  panel.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => {
+    const key = el.id || el.placeholder?.slice(0, 40) || Math.random().toString(36).slice(2);
+    fields[key] = el.value;
+  });
+
+  // Impacts sélectionnés
+  const impacts = {};
+  panel.querySelectorAll('.impact-toggle').forEach(btn => {
+    const detailId = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    if (!detailId) return;
+    const key = detailId.split('_').pop();
+    impacts[key] = {
+      selected: btn.classList.contains('selected'),
+      intensite: btn.closest('.fiche')?.querySelector(`#${detailId} .intensite-opt.sel-principale`) ? 'principale'
+                : btn.closest('.fiche')?.querySelector(`#${detailId} .intensite-opt.sel-secondaire`) ? 'secondaire'
+                : btn.closest('.fiche')?.querySelector(`#${detailId} .intensite-opt.sel-indirecte`) ? 'indirecte' : null
+    };
+  });
+
+  // Complexité
+  const complexite = panel.querySelector('.complexite-opt.sel')?.textContent?.trim() || null;
+
+  // Indicateurs dynamiques (nombre de lignes)
+  const indCount = panel.querySelectorAll(`#indlist_${id} .indicateur-row:not(.indicateur-header)`).length;
+  const bmCount = panel.querySelectorAll(`[id^="bmlist_${id}"] .benchmark-item`).length;
+
+  const f = fiches.find(f => f.id === id);
+  return {
+    fiche_id: id,
+    num: f?.num || '',
+    title: f?.title || '',
+    fields,
+    impacts,
+    complexite,
+    ind_count: indCount,
+    bm_count: bmCount,
+    updated_at: new Date().toISOString()
+  };
+}
+
+// ─────────────────────────────────────────
+// SAVE TO SUPABASE (upsert par fiche_id)
+// ─────────────────────────────────────────
+let saveTimeout = null;
+
+async function saveFiche(id) {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    setSyncStatus('saving', 'Sauvegarde...');
+    try {
+      const data = collectFicheData(id);
+      if (!data) return;
+
+      // Check if exists
+      const checkRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/fiches?fiche_id=eq.${id}`,
+        { headers: HEADERS }
+      );
+      const existing = await checkRes.json();
+
+      let res;
+      if (existing.length > 0) {
+        // UPDATE
+        res = await fetch(
+          `${SUPABASE_URL}/rest/v1/fiches?fiche_id=eq.${id}`,
+          { method: 'PATCH', headers: HEADERS, body: JSON.stringify({ data }) }
+        );
+      } else {
+        // INSERT
+        res = await fetch(
+          `${SUPABASE_URL}/rest/v1/fiches`,
+          { method: 'POST', headers: { ...HEADERS, 'Prefer': 'return=minimal' }, body: JSON.stringify({ fiche_id: id, data }) }
+        );
+      }
+
+      if (res.ok || res.status === 204 || res.status === 201) {
+        setSyncStatus('saved', 'Sauvegardé');
+      } else {
+        const err = await res.text();
+        console.error('Supabase error:', err);
+        setSyncStatus('error', 'Erreur de sauvegarde');
+      }
+    } catch(e) {
+      console.error(e);
+      setSyncStatus('error', 'Hors ligne ?');
+    }
+  }, 1200); // debounce 1.2s
+}
+
+// ─────────────────────────────────────────
+// LOAD ALL FICHES FROM SUPABASE
+// ─────────────────────────────────────────
+async function loadAllFiches() {
+  setSyncStatus('loading', 'Chargement...');
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/fiches?select=fiche_id,data&order=fiche_id.asc`,
+      { headers: HEADERS }
+    );
+    const rows = await res.json();
+
+    if (!rows || rows.length === 0) {
+      addFiche(); // Aucune fiche en base : on crée une vide
+      setSyncStatus('saved', 'Prêt');
+      return;
+    }
+
+    for (const row of rows) {
+      const d = row.data;
+      const id = row.fiche_id;
+      ficheCounter = Math.max(ficheCounter, id);
+      fiches.push({ id, num: d.num || `PC-0${id}`, title: d.title || 'Sans titre' });
+
+      const main = document.getElementById('main-content');
+      const div = document.createElement('div');
+      div.innerHTML = ficheHTML(id);
+      main.appendChild(div.firstElementChild);
+
+      const panel = document.getElementById(`panel_${id}`);
+      panel.querySelectorAll('.section-header.open').forEach(h => h.nextElementSibling.classList.add('open'));
+
+      // Restore fields
+      if (d.fields) {
+        const inputs = panel.querySelectorAll('input[type="text"], input[type="number"], textarea');
+        inputs.forEach(el => {
+          const key = el.id || el.placeholder?.slice(0, 40);
+          if (key && d.fields[key] !== undefined) el.value = d.fields[key];
+        });
+      }
+
+      // Restore impacts
+      if (d.impacts) {
+        panel.querySelectorAll('.impact-toggle').forEach(btn => {
+          const detailId = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+          if (!detailId) return;
+          const key = detailId.split('_').pop();
+          if (d.impacts[key]?.selected) {
+            btn.classList.add('selected');
+            const detail = document.getElementById(detailId);
+            if (detail) detail.classList.add('visible');
+          }
+          if (d.impacts[key]?.intensite) {
+            const detail = document.getElementById(detailId);
+            detail?.querySelectorAll('.intensite-opt').forEach(o => {
+              if (o.textContent.trim().toLowerCase() === d.impacts[key].intensite) {
+                o.classList.add(`sel-${d.impacts[key].intensite}`);
+              }
+            });
+          }
+        });
+      }
+
+      // Restore complexité
+      if (d.complexite) {
+        panel.querySelectorAll('.complexite-opt').forEach(o => {
+          if (o.textContent.trim() === d.complexite) o.classList.add('sel');
+        });
+      }
+
+      // Attach autosave listeners
+      attachAutosave(id);
+    }
+
+    // Show first fiche
+    switchFiche(fiches[0].id);
+    setSyncStatus('saved', 'Chargé');
+  } catch(e) {
+    console.error(e);
+    setSyncStatus('error', 'Impossible de charger');
+    addFiche();
+  }
+}
+
+// ─────────────────────────────────────────
+// ATTACH AUTOSAVE TO A PANEL
+// ─────────────────────────────────────────
+function attachAutosave(id) {
+  const panel = document.getElementById(`panel_${id}`);
+  if (!panel) return;
+  panel.querySelectorAll('input, textarea').forEach(el => {
+    el.addEventListener('input', () => saveFiche(id));
+  });
+  panel.querySelectorAll('.impact-toggle, .complexite-opt, .intensite-opt').forEach(el => {
+    el.addEventListener('click', () => setTimeout(() => saveFiche(id), 100));
+  });
+}
+
+// ─────────────────────────────────────────
+// PATCH addFiche to attach autosave + sync
+// ─────────────────────────────────────────
+const _origAddFiche = addFiche;
+addFiche = function() {
+  _origAddFiche();
+  const id = ficheCounter;
+  attachAutosave(id);
+};
+
+// ─────────────────────────────────────────
+// DELETE FROM SUPABASE
+// ─────────────────────────────────────────
+const _origDeleteFiche = deleteFiche;
+deleteFiche = async function(e, id) {
+  e.stopPropagation();
+  if (fiches.length <= 1) { alert('Il doit rester au moins une fiche.'); return; }
+  if (!confirm('Supprimer cette fiche définitivement ?')) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/fiches?fiche_id=eq.${id}`, {
+      method: 'DELETE', headers: HEADERS
+    });
+  } catch(e) { console.error(e); }
+  fiches = fiches.filter(f => f.id !== id);
+  const panel = document.getElementById(`panel_${id}`);
+  if (panel) panel.remove();
+  if (activeFicheId === id) switchFiche(fiches[fiches.length - 1].id);
+  else renderSidebar();
+};
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+loadAllFiches();
 </script>
 
 </body>
