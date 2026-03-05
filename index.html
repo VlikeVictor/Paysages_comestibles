@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Les paysages comestibles en Seine-Saint-Denis</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --vert: #2d6a4f;
+  --vert-clair: #52b788;
+  --vert-pale: #d8f3dc;
+  --terre: #b7752c;
+  --creme: #faf7f2;
+  --sombre: #1a2e1f;
+  --gris: #6b7a6e;
+  --blanc: #ffffff;
+  --border: #c8dfc8;
+  --sidebar-w: 260px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--creme);
+  color: var(--sombre);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--vert);
+  padding: 20px 32px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 10;
+}
+header::before {
+  content:''; position:absolute; top:-50px; right:-50px;
+  width:200px; height:200px; border-radius:50%;
+  background:rgba(82,183,136,0.15);
+}
+.header-inner {
+  display: flex; align-items: center; gap: 16px;
+  max-width: calc(var(--sidebar-w) + 900px + 48px);
+  margin: 0 auto;
+  position: relative; z-index: 1;
+}
+.header-badge {
+  background: var(--vert-clair); color: var(--blanc);
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; padding: 3px 12px; border-radius: 20px;
+  white-space: nowrap;
+}
+header h1 {
+  font-family: 'Playfair Display', serif;
+  color: var(--blanc); font-size: 20px; font-weight: 700;
+  line-height: 1.25; flex: 1;
+}
+header p { color: rgba(255,255,255,0.6); font-size: 12px; }
+
+/* ── LAYOUT ── */
+.app-body {
+  display: flex;
+  flex: 1;
+  max-width: calc(var(--sidebar-w) + 900px + 80px);
+  margin: 0 auto;
+  width: 100%;
+  padding: 24px 24px 60px;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  position: sticky;
+  top: 24px;
+}
+.sidebar-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gris);
+  padding: 0 4px; margin-bottom: 10px;
+}
+.fiche-list { display: flex; flex-direction: column; gap: 6px; }
+
+.fiche-nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--blanc);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.fiche-nav-item:hover { border-color: var(--vert-clair); background: var(--vert-pale); }
+.fiche-nav-item.active {
+  background: var(--vert); border-color: var(--vert); color: var(--blanc);
+}
+.fiche-nav-num {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  opacity: 0.7; flex-shrink: 0;
+}
+.fiche-nav-title {
+  font-size: 12.5px; font-weight: 600; flex: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fiche-nav-delete {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: none; background: rgba(0,0,0,0.08);
+  color: inherit; font-size: 11px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.fiche-nav-item:hover .fiche-nav-delete { opacity: 1; }
+.fiche-nav-item.active .fiche-nav-delete { background: rgba(255,255,255,0.2); }
+
+.add-fiche-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 1.5px dashed var(--vert-clair);
+  border-radius: 10px;
+  background: none;
+  color: var(--vert);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.add-fiche-btn:hover { background: var(--vert-pale); }
+
+.sidebar-actions {
+  margin-top: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sidebar-btn {
+  width: 100%; padding: 9px;
+  border-radius: 8px; border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.sidebar-btn-primary { background: var(--vert); color: var(--blanc); }
+.sidebar-btn-primary:hover { background: #235a40; }
+.sidebar-btn-outline {
+  background: none; border: 1.5px solid var(--border); color: var(--gris);
+}
+.sidebar-btn-outline:hover { border-color: var(--vert-clair); color: var(--vert); }
+
+/* ── MAIN CONTENT ── */
+.main-content { flex: 1; min-width: 0; }
+
+.fiche-panel { display: none; animation: fadeIn 0.25s ease; }
+.fiche-panel.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(5px);} to {opacity:1;transform:none;} }
+
+/* ── FICHE CARD ── */
+.fiche {
+  background: var(--blanc);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(45,106,79,0.08);
+}
+
+/* ── SECTION ── */
+.fiche-section { border-bottom: 1px solid var(--border); }
+.fiche-section:last-child { border-bottom: none; }
+
+.section-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 22px;
+  background: var(--vert-pale);
+  cursor: pointer; user-select: none;
+  transition: background 0.15s;
+}
+.section-header:hover { background: #cceedd; }
+.section-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--vert);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px; font-weight: 700; color: var(--vert); flex: 1;
+}
+.section-chevron {
+  color: var(--vert); font-size: 11px; transition: transform 0.2s;
+}
+.section-header.open .section-chevron { transform: rotate(180deg); }
+
+.section-body {
+  padding: 0 22px;
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.2s;
+}
+.section-body.open { max-height: 4000px; padding: 20px 22px 24px; }
+
+/* ── FIELDS ── */
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.field-grid.full { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field.span2 { grid-column: span 2; }
+.field.span3 { grid-column: span 3; }
+
+label {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--gris);
+}
+
+input[type="text"], input[type="number"], select, textarea {
+  width: 100%;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 8px 11px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--sombre); background: var(--creme);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none; resize: vertical;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--vert-clair);
+  box-shadow: 0 0 0 3px rgba(82,183,136,0.12);
+  background: var(--blanc);
+}
+textarea { min-height: 75px; }
+
+/* ── IMAGE UPLOAD ── */
+.img-upload-zone {
+  border: 2px dashed var(--border); border-radius: 10px;
+  padding: 20px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: var(--creme); position: relative;
+  overflow: hidden;
+}
+.img-upload-zone:hover { border-color: var(--vert-clair); background: var(--vert-pale); }
+.img-upload-zone input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  border: none; background: none; padding: 0; width: 100%; height: 100%;
+}
+.upload-hint { font-size: 12.5px; color: var(--gris); pointer-events: none; }
+.upload-hint strong { color: var(--vert); }
+.img-preview-container { display: none; position: relative; }
+.img-preview-container img { width: 100%; border-radius: 8px; max-height: 200px; object-fit: cover; }
+.img-remove {
+  position: absolute; top: 6px; right: 6px;
+  background: rgba(0,0,0,0.5); color: white;
+  border: none; border-radius: 50%; width: 24px; height: 24px;
+  font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── BLOCS ENCADRÉS (Où, Qui) ── */
+.bloc-encadre {
+  border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 16px; background: var(--creme);
+}
+.bloc-encadre-title {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--vert);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+
+/* ── IMPACTS TOGGLE ── */
+.impact-toggle-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+  margin-bottom: 16px;
+}
+.impact-toggle {
+  border-radius: 10px; padding: 11px 13px;
+  border: 1.5px solid var(--border); background: var(--creme);
+  cursor: pointer; transition: all 0.15s; user-select: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.impact-toggle:hover { border-color: var(--vert-clair); }
+.impact-toggle.selected { background: var(--vert-pale); border-color: var(--vert); }
+.it-icon { font-size: 17px; }
+.it-label { font-size: 12px; font-weight: 600; color: var(--gris); flex: 1; }
+.impact-toggle.selected .it-label { color: var(--vert); }
+.it-check {
+  width: 17px; height: 17px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--blanc);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: transparent; transition: all 0.15s; flex-shrink: 0;
+}
+.impact-toggle.selected .it-check { background: var(--vert); border-color: var(--vert); color: var(--blanc); }
+
+.impact-detail { display: none; animation: fadeIn 0.2s ease; }
+.impact-detail.visible { display: block; }
+.impact-detail-inner {
+  border-left: 3px solid var(--vert-clair);
+  padding: 12px 14px; background: var(--vert-pale);
+  border-radius: 0 8px 8px 0; margin-bottom: 10px;
+}
+.impact-detail-inner > label { color: var(--vert); margin-bottom: 8px; display: block; }
+
+/* intensité */
+.intensite-wrap { display: flex; gap: 6px; margin-bottom: 8px; }
+.intensite-opt {
+  padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+  border: 1.5px solid var(--border); cursor: pointer; transition: all 0.12s;
+  background: var(--blanc); color: var(--gris);
+}
+.intensite-opt:hover { border-color: var(--vert-clair); color: var(--vert); }
+.intensite-opt.sel-principale { background: var(--vert); border-color: var(--vert); color: var(--blanc); }
+.intensite-opt.sel-secondaire { background: var(--vert-clair); border-color: var(--vert-clair); color: var(--blanc); }
+.intensite-opt.sel-indirecte { background: #a8d5b5; border-color: #a8d5b5; color: var(--sombre); }
+
+/* ── INDICATEURS ── */
+.indicateurs-list { display: flex; flex-direction: column; gap: 8px; }
+.indicateur-row {
+  display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr; gap: 8px;
+  align-items: center; padding: 9px 11px;
+  background: var(--creme); border-radius: 8px; border: 1px solid var(--border);
+}
+.indicateur-header {
+  background: var(--vert-pale) !important; border-color: var(--vert-clair) !important;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--gris);
+}
+.ind-remove {
+  background: none; border: none; color: #c0504d;
+  font-size: 14px; cursor: pointer; padding: 0 4px; line-height: 1;
+}
+
+/* ── BENCHMARK ── */
+.benchmark-list { display: flex; flex-direction: column; gap: 12px; }
+.benchmark-item {
+  border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 14px; background: var(--creme); transition: border-color 0.15s;
+}
+.benchmark-item:hover { border-color: var(--vert-clair); }
+.benchmark-item-header {
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 10px;
+}
+.benchmark-remove {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border: 1px solid #e0a0a0; border-radius: 6px;
+  background: none; color: #c0504d; font-size: 11px; cursor: pointer;
+  margin-top: 8px; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.benchmark-remove:hover { background: #fdf0f0; }
+
+/* ── ADD BTN ── */
+.add-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border: 1.5px dashed var(--vert-clair);
+  border-radius: 8px; background: none; color: var(--vert);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+  cursor: pointer; margin-top: 8px; transition: all 0.15s;
+}
+.add-btn:hover { background: var(--vert-pale); }
+
+/* ── FAISABILITÉ ── */
+.faisabilite-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.complexite-wrap { display: flex; gap: 6px; flex-wrap: wrap; }
+.complexite-opt {
+  padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--border); cursor: pointer; transition: all 0.12s;
+  background: var(--creme); color: var(--gris);
+}
+.complexite-opt:hover { border-color: var(--vert-clair); }
+.complexite-opt.sel { background: var(--vert); border-color: var(--vert); color: var(--blanc); }
+
+/* ── HORIZONS ── */
+.horizons-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.horizon-card { border-radius: 10px; border: 1.5px solid var(--border); overflow: hidden; }
+.horizon-header {
+  padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+}
+.hz-1 { background: #e8f4e8; }
+.hz-2 { background: #fff3e0; }
+.hz-3 { background: #fce4ec; }
+.horizon-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.lbl-1 { color: #2d6a4f; } .lbl-2 { color: #b7752c; } .lbl-3 { color: #8b3a62; }
+.horizon-sublabel { font-size: 10.5px; color: var(--gris); margin-left: auto; font-style: italic; }
+.horizon-card textarea {
+  border: none; border-radius: 0; background: var(--blanc);
+  min-height: 100px; font-size: 13px; border-top: 1px solid var(--border);
+}
+.horizon-card textarea:focus { box-shadow: none; background: #fafffe; }
+
+.prochaine-etape {
+  border: 2px solid var(--vert-clair); border-radius: 10px; padding: 14px;
+  background: var(--vert-pale);
+}
+.prochaine-etape-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--vert); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.prochaine-etape .field-grid { grid-template-columns: 2fr 1fr 1fr; }
+
+/* ── PRINT ── */
+@media print {
+  .sidebar, .actions-bar, .add-btn, .benchmark-remove,
+  .ind-remove, .fiche-nav-delete { display: none !important; }
+  .app-body { padding: 0; }
+  .main-content { width: 100%; }
+  .fiche-panel { display: block !important; page-break-after: always; }
+  .section-body { max-height: none !important; padding: 20px 22px 24px !important; }
+  .impact-detail { display: block !important; }
+  header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  body { background: white; }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 800px) {
+  :root { --sidebar-w: 200px; }
+  .app-body { padding: 16px; gap: 16px; }
+}
+@media (max-width: 640px) {
+  .app-body { flex-direction: column; }
+  .sidebar { width: 100%; position: static; }
+  .field-grid, .field-grid.cols-3, .horizons-grid,
+  .impact-toggle-grid, .faisabilite-grid { grid-template-columns: 1fr; }
+  .field.span2, .field.span3 { grid-column: span 1; }
+  .indicateur-row { grid-template-columns: 1fr 1fr; }
+  .benchmark-item-header { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="header-badge">🌿 Paysages comestibles</div>
+    </div>
+    <div>
+      <h1>Atelier — Les paysages comestibles en Seine-Saint-Denis</h1>
+      <p>Fiches actions · Département 93</p>
+    </div>
+  </div>
+</header>
+
+<div class="app-body">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Fiches actions</div>
+    <div class="fiche-list" id="fiche-list"></div>
+    <button class="add-fiche-btn" onclick="addFiche()">＋ Nouvelle fiche</button>
+    <div class="sidebar-actions">
+      <button class="sidebar-btn sidebar-btn-primary" onclick="window.print()">🖨️ Imprimer tout</button>
+      <button class="sidebar-btn sidebar-btn-outline" onclick="exportJSON()">💾 Exporter (.json)</button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content" id="main-content"></main>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+let fiches = [];
+let activeFicheId = null;
+let ficheCounter = 0;
+
+// ─────────────────────────────────────────
+// FICHE TEMPLATE HTML
+// ─────────────────────────────────────────
+function ficheHTML(id) {
+  const uid = (key) => `${id}_${key}`;
+  return `
+<div class="fiche-panel" id="panel_${id}">
+<div class="fiche">
+
+  <!-- 1. IDENTIFICATION -->
+  <div class="fiche-section">
+    <div class="section-header open" onclick="toggle(this)">
+      <div class="section-icon">🏷️</div>
+      <span class="section-title">1 — Identification de l'action</span>
+      <span class="section-chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <div class="field-grid cols-3">
+        <div class="field">
+          <label>N° de l'action</label>
+          <input type="text" class="fiche-num" placeholder="ex. PC-01" oninput="updateNav(${id})">
+        </div>
+        <div class="field span2">
+          <label>Intitulé de l'action</label>
+          <input type="text" class="fiche-title" placeholder="Nom du projet" oninput="updateNav(${id})">
+        </div>
+        <div class="field span3">
+          <label>Orientation</label>
+          <input type="text" placeholder="ex. Axe 1 — Résilience alimentaire et accès à une alimentation durable">
+        </div>
+        <div class="field span3">
+          <label>Concept en une phrase</label>
+          <input type="text" placeholder="Résumé synthétique du projet">
+        </div>
+      </div>
+      <div class="field" style="margin-top:16px;">
+        <label>Illustration du projet <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;">(facultatif)</span></label>
+        <div class="img-upload-zone" id="zone_${id}" onclick="triggerUpload('${id}')">
+          <input type="file" id="file_${id}" accept="image/*" style="display:none" onchange="previewImg('${id}')">
+          <div class="upload-hint">📎 Cliquer pour importer une image, un croquis, un schéma…</div>
+        </div>
+        <div class="img-preview-container" id="preview_${id}">
+          <img id="img_${id}" src="" alt="Illustration">
+          <button class="img-remove" onclick="removeImg('${id}')">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. DESCRIPTION -->
+  <div class="fiche-section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-icon">📋</div>
+      <span class="section-title">2 — Description de l'action</span>
+      <span class="section-chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="field-grid full">
+
+        <div class="field">
+          <label>Quoi ? — Description détaillée</label>
+          <textarea placeholder="En quoi consiste le projet ? Ses composantes, ses équipements, ses activités, son ambiance..."></textarea>
+        </div>
+
+        <div class="field">
+          <label>Pourquoi ? — Contexte et enjeux</label>
+          <textarea placeholder="Quel problème adresse ce projet ? En quoi contribue-t-il à la résilience alimentaire ?"></textarea>
+        </div>
+
+        <div class="bloc-encadre">
+          <div class="bloc-encadre-title">📍 Où ?</div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Parc pressenti</label>
+              <input type="text" placeholder="Nom du parc en Seine-Saint-Denis">
+            </div>
+            <div class="field">
+              <label>Localisation dans le parc</label>
+              <input type="text" placeholder="ex. Entrée nord, proche du jardin pédagogique...">
+            </div>
+            <div class="field span2">
+              <label>Critères de choix & contraintes</label>
+              <textarea placeholder="Superficie, flux, accès, équipements à proximité, contraintes spécifiques..." style="min-height:55px;"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="bloc-encadre">
+          <div class="bloc-encadre-title">👥 Qui ?</div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Bénéficiaires</label>
+              <input type="text" placeholder="Qui profite directement de cette action ?">
+            </div>
+            <div class="field">
+              <label>Partenaires</label>
+              <input type="text" placeholder="Associations, institutions, intervenants...">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. IMPACTS -->
+  <div class="fiche-section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-icon">🌍</div>
+      <span class="section-title">3 — Impacts & Co-bénéfices</span>
+      <span class="section-chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p style="font-size:12.5px;color:var(--gris);margin-bottom:14px;">Sélectionnez les fonctions concernées, précisez l'intensité, puis décrivez la contribution.</p>
+      <div class="impact-toggle-grid">
+        ${impactToggle(id,'pedagogique','📚','Pédagogique')}
+        ${impactToggle(id,'nourriciere','🍎','Nourricière')}
+        ${impactToggle(id,'sanitaire','🏥','Sanitaire')}
+        ${impactToggle(id,'esthetique','🎨','Esthétique')}
+        ${impactToggle(id,'sociale','🤝','Sociale')}
+        ${impactToggle(id,'ecologique','🌿','Écologique')}
+      </div>
+      ${impactDetail(id,'pedagogique','📚','Pédagogique','Apports éducatifs, ateliers, sensibilisation, lien avec les établissements...')}
+      ${impactDetail(id,'nourriciere','🍎','Nourricière','Production alimentaire, espèces, quantités, circuits courts...')}
+      ${impactDetail(id,'sanitaire','🏥','Sanitaire','Effets sur la santé, qualité de l\'air, gestion des îlots de chaleur...')}
+      ${impactDetail(id,'esthetique','🎨','Esthétique','Transformation du paysage, embellissement, identité visuelle...')}
+      ${impactDetail(id,'sociale','🤝','Sociale','Lien social, participation habitante, inclusion, jardinage collectif...')}
+      ${impactDetail(id,'ecologique','🌿','Écologique','Biodiversité, pollinisateurs, sols, gestion de l\'eau...')}
+    </div>
+  </div>
+
+  <!-- 4. INDICATEURS -->
+  <div class="fiche-section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-icon">📊</div>
+      <span class="section-title">4 — Indicateurs de suivi</span>
+      <span class="section-chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="indicateurs-list" id="indlist_${id}">
+        <div class="indicateur-row indicateur-header">
+          <span>Indicateur</span><span>Situation initiale</span><span>Valeur cible</span><span>Échéance</span>
+        </div>
+        <div class="indicateur-row">
+          <input type="text" placeholder="ex. Nb de personnes formées / an">
+          <input type="text" placeholder="ex. 0">
+          <input type="text" placeholder="ex. 200 pers.">
+          <input type="text" placeholder="ex. 2027">
+        </div>
+        <div class="indicateur-row">
+          <input type="text" placeholder="Indicateur 2">
+          <input type="text" placeholder="Situation actuelle">
+          <input type="text" placeholder="Cible">
+          <input type="text" placeholder="Échéance">
+        </div>
+      </div>
+      <button class="add-btn" onclick="addIndicateur('indlist_${id}')">+ Ajouter un indicateur</button>
+    </div>
+  </div>
+
+  <!-- 5. BENCHMARK -->
+  <div class="fiche-section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-icon">🔍</div>
+      <span class="section-title">5 — Benchmark</span>
+      <span class="section-chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p style="font-size:12.5px;color:var(--gris);margin-bottom:14px;">Projets de référence, initiatives inspirantes ou travaux mobilisés pour concevoir cette action.</p>
+      <div class="benchmark-list" id="bmlist_${id}">
+        <div class="benchmark-item">
+          <div class="benchmark-item-header">
+            <div class="field"><label>Nom du projet</label><input type="text" placeholder="ex. Incroyables Comestibles"></div>
+            <div class="field"><label>Lieu</label><input type="text" placeholder="ex. Todmorden, UK"></div>
+            <div class="field"><label>Source / Lien</label><input type="text" placeholder="URL ou référence"></div>
+          </div>
+          <div class="field"><label>Enseignements & points de transposition</label><textarea placeholder="Ce qui est inspirant, ce qui est transposable, les nuances à apporter..."></textarea></div>
+          <button class="benchmark-remove" onclick="removeParent(this,'.benchmark-item')">✕ Supprimer</button>
+        </div>
+      </div>
+      <button class="add-btn" onclick="addBenchmark('bmlist_${id}')">+ Ajouter un exemple</button>
+    </div>
+  </div>
+
+  <!-- 6. FAISABILITÉ -->
+  <div class="fiche-section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-icon">⚙️</div>
+      <span class="section-title">6 — Faisabilité</span>
+      <span class="section-chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="faisabilite-grid">
+        <div class="field">
+          <label>Budget estimé (ordre de grandeur)</label>
+          <input type="text" placeholder="ex. 50 000 – 100 000 €">
+        </div>
+        <div class="field">
+          <label>Complexité de mise en œuvre</label>
+          <div class="complexite-wrap" style="margin-top:4px;">
+            <div class="complexite-opt" onclick="selectComplexite(this)">🟢 Faible</div>
+            <div class="complexite-opt" onclick="selectComplexite(this)">🟡 Moyenne</div>
+            <div class="complexite-opt" onclick="selectComplexite(this)">🔴 Élevée</div>
+          </div>
+        </div>
+        <div class="field span2">
+          <label>Conditions de réussite</label>
+          <textarea placeholder="2-3 facteurs clés sans lesquels ce projet ne peut pas fonctionner..." style="min-height:65px;"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. CALENDRIER PROSPECTIF -->
+  <div class="fiche-section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-icon">🕰️</div>
+      <span class="section-title">7 — Calendrier prospectif</span>
+      <span class="section-chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="horizons-grid">
+        <div class="horizon-card">
+          <div class="horizon-header hz-1">
+            <span style="font-size:18px;">🌱</span>
+            <div><div class="horizon-label lbl-1">Dans 1 an</div><div class="horizon-sublabel">Amorçage</div></div>
+          </div>
+          <textarea placeholder="Qu'est-ce qui est lancé ? Quels premiers résultats visibles ?"></textarea>
+        </div>
+        <div class="horizon-card">
+          <div class="horizon-header hz-2">
+            <span style="font-size:18px;">🌳</span>
+            <div><div class="horizon-label lbl-2">Dans 5-10 ans</div><div class="horizon-sublabel">Consolidation</div></div>
+          </div>
+          <textarea placeholder="Qu'est-ce qui est consolidé ? Quelles nouvelles dynamiques enclenchées ?"></textarea>
+        </div>
+        <div class="horizon-card">
+          <div class="horizon-header hz-3">
+            <span style="font-size:18px;">🌍</span>
+            <div><div class="horizon-label lbl-3">En 2050</div><div class="horizon-sublabel">Vision</div></div>
+          </div>
+          <textarea placeholder="Quelle est la vision idéale ? Quelle contribution au territoire à long terme ?"></textarea>
+        </div>
+      </div>
+      <div class="prochaine-etape">
+        <div class="prochaine-etape-title">→ Prochaine étape concrète</div>
+        <div class="field-grid" style="grid-template-columns: 2fr 1fr 1fr;">
+          <div class="field"><label>Action à mener</label><input type="text" placeholder="ex. Réunion de lancement avec les partenaires"></div>
+          <div class="field"><label>Responsable</label><input type="text" placeholder="Qui ?"></div>
+          <div class="field"><label>Échéance</label><input type="text" placeholder="Avant le..."></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- fin .fiche -->
+</div><!-- fin .fiche-panel -->
+`;
+}
+
+function impactToggle(id, key, icon, label) {
+  return `
+    <div class="impact-toggle" onclick="toggleImpact(this,'imp_${id}_${key}')">
+      <span class="it-icon">${icon}</span>
+      <span class="it-label">${label}</span>
+      <span class="it-check">✓</span>
+    </div>`;
+}
+
+function impactDetail(id, key, icon, label, placeholder) {
+  return `
+    <div id="imp_${id}_${key}" class="impact-detail">
+      <div class="impact-detail-inner">
+        <label>${icon} ${label}</label>
+        <div class="intensite-wrap">
+          <span style="font-size:11px;color:var(--gris);align-self:center;margin-right:4px;">Intensité :</span>
+          <div class="intensite-opt" onclick="selectIntensite(this,'principale')">Principale</div>
+          <div class="intensite-opt" onclick="selectIntensite(this,'secondaire')">Secondaire</div>
+          <div class="intensite-opt" onclick="selectIntensite(this,'indirecte')">Indirecte</div>
+        </div>
+        <textarea placeholder="${placeholder}"></textarea>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────
+function renderSidebar() {
+  const list = document.getElementById('fiche-list');
+  list.innerHTML = fiches.map(f => `
+    <div class="fiche-nav-item ${f.id === activeFicheId ? 'active' : ''}" onclick="switchFiche(${f.id})">
+      <span class="fiche-nav-num">${f.num || '—'}</span>
+      <span class="fiche-nav-title">${f.title || 'Sans titre'}</span>
+      <button class="fiche-nav-delete" onclick="deleteFiche(event,${f.id})" title="Supprimer">✕</button>
+    </div>
+  `).join('');
+}
+
+function updateNav(id) {
+  const panel = document.getElementById(`panel_${id}`);
+  if (!panel) return;
+  const num = panel.querySelector('.fiche-num')?.value || '—';
+  const title = panel.querySelector('.fiche-title')?.value || 'Sans titre';
+  const f = fiches.find(f => f.id === id);
+  if (f) { f.num = num; f.title = title; }
+  renderSidebar();
+}
+
+function switchFiche(id) {
+  activeFicheId = id;
+  document.querySelectorAll('.fiche-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById(`panel_${id}`);
+  if (panel) panel.classList.add('active');
+  renderSidebar();
+}
+
+function addFiche() {
+  ficheCounter++;
+  const id = ficheCounter;
+  fiches.push({ id, num: `PC-0${id}`, title: 'Sans titre' });
+  const main = document.getElementById('main-content');
+  const div = document.createElement('div');
+  div.innerHTML = ficheHTML(id);
+  main.appendChild(div.firstElementChild);
+  switchFiche(id);
+  // Auto-open first section
+  const panel = document.getElementById(`panel_${id}`);
+  panel.querySelectorAll('.section-header.open').forEach(h => {
+    h.nextElementSibling.classList.add('open');
+  });
+}
+
+function deleteFiche(e, id) {
+  e.stopPropagation();
+  if (fiches.length <= 1) { alert('Il doit rester au moins une fiche.'); return; }
+  if (!confirm('Supprimer cette fiche ?')) return;
+  fiches = fiches.filter(f => f.id !== id);
+  const panel = document.getElementById(`panel_${id}`);
+  if (panel) panel.remove();
+  if (activeFicheId === id) switchFiche(fiches[fiches.length - 1].id);
+  else renderSidebar();
+}
+
+// ─────────────────────────────────────────
+// INTERACTIONS
+// ─────────────────────────────────────────
+function toggle(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+function toggleImpact(btn, detailId) {
+  btn.classList.toggle('selected');
+  const detail = document.getElementById(detailId);
+  if (detail) detail.classList.toggle('visible');
+}
+
+function selectIntensite(el, val) {
+  const wrap = el.closest('.intensite-wrap');
+  wrap.querySelectorAll('.intensite-opt').forEach(o => {
+    o.classList.remove('sel-principale','sel-secondaire','sel-indirecte');
+  });
+  el.classList.add(`sel-${val}`);
+}
+
+function selectComplexite(el) {
+  el.closest('.complexite-wrap').querySelectorAll('.complexite-opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function addIndicateur(listId) {
+  const list = document.getElementById(listId);
+  const row = document.createElement('div');
+  row.className = 'indicateur-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Indicateur">
+    <input type="text" placeholder="Situation initiale">
+    <input type="text" placeholder="Cible">
+    <input type="text" placeholder="Échéance">
+  `;
+  list.appendChild(row);
+}
+
+function addBenchmark(listId) {
+  const list = document.getElementById(listId);
+  const item = document.createElement('div');
+  item.className = 'benchmark-item';
+  item.innerHTML = `
+    <div class="benchmark-item-header">
+      <div class="field"><label>Nom du projet</label><input type="text" placeholder="Nom"></div>
+      <div class="field"><label>Lieu</label><input type="text" placeholder="Lieu"></div>
+      <div class="field"><label>Source / Lien</label><input type="text" placeholder="URL"></div>
+    </div>
+    <div class="field"><label>Enseignements</label><textarea placeholder="Ce qui est transposable..."></textarea></div>
+    <button class="benchmark-remove" onclick="removeParent(this,'.benchmark-item')">✕ Supprimer</button>
+  `;
+  list.appendChild(item);
+  item.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function removeParent(el, selector) { el.closest(selector).remove(); }
+
+// ─────────────────────────────────────────
+// IMAGE
+// ─────────────────────────────────────────
+function triggerUpload(id) {
+  document.getElementById(`file_${id}`).click();
+}
+function previewImg(id) {
+  const file = document.getElementById(`file_${id}`).files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById(`img_${id}`).src = e.target.result;
+    document.getElementById(`zone_${id}`).style.display = 'none';
+    document.getElementById(`preview_${id}`).style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+function removeImg(id) {
+  document.getElementById(`file_${id}`).value = '';
+  document.getElementById(`img_${id}`).src = '';
+  document.getElementById(`zone_${id}`).style.display = 'block';
+  document.getElementById(`preview_${id}`).style.display = 'none';
+}
+
+// ─────────────────────────────────────────
+// EXPORT JSON (sauvegarde basique)
+// ─────────────────────────────────────────
+function exportJSON() {
+  const data = fiches.map(f => {
+    const panel = document.getElementById(`panel_${f.id}`);
+    if (!panel) return f;
+    const inputs = {};
+    panel.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach((el, i) => {
+      inputs[i] = el.value;
+    });
+    return { ...f, inputs };
+  });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fiches-action-paysages-comestibles.json';
+  a.click();
+}
+
+// ─────────────────────────────────────────
+// INIT — créer une première fiche par défaut
+// ─────────────────────────────────────────
+addFiche();
+</script>
+
+</body>
+</html>
